@@ -3,6 +3,8 @@ using Serilog.Events;
 using Oracle.ManagedDataAccess.Client;
 using System.Collections.Concurrent;
 using Newtonsoft.Json;
+using System.Globalization;
+
 namespace OracleSink
 {
     public class OracleBackgroundSink : ILogEventSink, IDisposable
@@ -14,11 +16,11 @@ namespace OracleSink
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private readonly Task _backgroundTask;
 
-        public OracleBackgroundSink(string connectionString, string tableName, IFormatProvider formatProvider = null)
+        public OracleBackgroundSink(string connectionString, string tableName, IFormatProvider? formatProvider = null)
         {
-            _connectionString = connectionString;
-            _tableName = tableName;
-            _formatProvider = formatProvider;
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            _tableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+            _formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
             _backgroundTask = Task.Run(ProcessQueueAsync);
         }
 
@@ -60,7 +62,6 @@ namespace OracleSink
 
                 using var command = connection.CreateCommand();
                 command.CommandTimeout = 30;
-
                 command.BindByName = true;
                 command.CommandText = $@"
                 INSERT INTO {_tableName}
@@ -73,7 +74,7 @@ namespace OracleSink
                 command.Parameters.Add(new OracleParameter("LogException",
                     logEvent.Exception?.ToString() ?? (object)DBNull.Value));
                 command.Parameters.Add(new OracleParameter("LogProperties",
-                    logEvent.Properties != null
+                    logEvent.Properties?.Count > 0
                         ? JsonConvert.SerializeObject(logEvent.Properties.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString()))
                         : (object)DBNull.Value));
                 command.Parameters.Add(new OracleParameter("LogTemplates",
