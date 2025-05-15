@@ -129,7 +129,7 @@ var app = builder.Build();
 
 
 
-var connectionString = "User Id=system;Password=S1erver;Data Source=localhost:1521/XEPDB1";
+var connectionString = "User Id=system;Password=XXXXXXXXXX;Data Source=localhost:1521/XEPDB1";
 
 
 
