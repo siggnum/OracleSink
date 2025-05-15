@@ -40,3 +40,118 @@ REATE TABLE Logs (
     Exception CLOB,
     Properties CLOB
 );
+
+
+
+
+
+EXAMPLE 1
+------------------------------------------------------------------------------------------------
+
+Program.cs
+
+using Oracle.ManagedDataAccess.Client;
+using oracle_sink;
+using Serilog;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+
+
+var connectionString = "User Id=system;Password=XXXXXXX;Data Source=localhost:1521/XEPDB1";
+
+// Create an OracleSink object manually
+var oracleSink = new OracleBackgroundSink(connectionString, tableName: "LOGS");
+
+// Configure Serilog to use the OracleSink
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Information()
+    .WriteTo.Sink(oracleSink) 
+    .CreateLogger();
+
+Log.Information("Test log message in Oracle database.3");
+
+
+// Hook for graceful shutdown
+AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+{
+    Log.Information("Application shutting down. Flushing logs.");
+    Log.CloseAndFlush();
+    oracleSink.Dispose();
+};
+
+
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
+
+
+
+EXAMPLE 2
+
+-------------------------------------------------------------------------------------------
+
+using Oracle.ManagedDataAccess.Client;
+using oracle_sink; //replace
+using Serilog;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+
+
+var connectionString = "User Id=system;Password=S1erver;Data Source=localhost:1521/XEPDB1";
+
+
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.OracleLogSink(connectionString, tableName: "LOGS") 
+    .CreateLogger();
+
+Log.Information("Test log message in Oracle database.");
+
+
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
