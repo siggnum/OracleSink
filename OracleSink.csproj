@@ -7,10 +7,11 @@
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<Authors>Nikola BRDJOVIC</Authors>
 	<Company>Siggnum Logic Doo</Company>
-	<Description>Oracle Serilog sink - background sink</Description>
+	<Description>Oracle Serilog sink - Is a custom Serilog sink that enables asynchronous background logging directly into an Oracle database using Oracle.ManagedDataAccess.Core</Description>
 	<PackageId>OracleBackgroundSink</PackageId>
-	<Version>1.0.6</Version>
+	<Version>1.0.9</Version>
 	<RepositoryUrl>https://github.com/siggnum/OracleSink</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
 	<LicenseExpression>MIT</LicenseExpression>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<Nullable>enable</Nullable>
